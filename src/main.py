@@ -1,7 +1,12 @@
+import os
+import sys
 from contextlib import asynccontextmanager
 import uvicorn
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
+
+sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
+
 from src.api.routes import router
 from src.core.config import settings, logger
 

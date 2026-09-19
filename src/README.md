@@ -1,16 +1,22 @@
-# Project 2 (V1): Vulnerable Client Agent Prototype
+# Project 2 (Production): Hardened Client Agent
 
-This prototype demonstrates common security vulnerabilities in unhardened client AI agents.
+Production-grade security middleware protecting AI client agents against PII leakage and prompt injection vectors.
 
-## Known Vulnerabilities in V1
+## Implemented Guardrails & Security Controls
 
-1. **Unredacted PII Exposure**: User inputs containing Social Security Numbers (SSN), phone numbers, or email addresses are passed directly to downstream model APIs without redaction or scrubbing.
-2. **Prompt Injection Susceptibility**: System prompts and instruction guardrails can be bypassed via prompt injection keywords (e.g. `System Override`), leading to key leakage or unauthorized instructions.
+1. **PII Sanitization Middleware (`guardrails.py`)**:
+   - `sanitize_pii(text: str)` automatically scrubs sensitive fields including SSNs (`\d{3}-\d{2}-\d{4}`), emails, and phone numbers before user queries are dispatched to LLM endpoints. Replaces matching tokens with `[REDACTED_SSN]`, `[REDACTED_EMAIL]`, and `[REDACTED_PHONE]`.
+
+2. **Prompt Injection Shield (`guardrails.py`)**:
+   - `detect_prompt_injection(text: str)` inspects input strings for override phrases (e.g. `system override`, `ignore previous`, `reveal key`). Requests matching injection signatures trigger a `[SECURITY_ALERT]` and return a sanitized security block response without executing downstream logic.
+
+3. **Security Audit Logging (`agent.py`)**:
+   - All inbound queries and security events are logged with UTC timestamps for compliance auditing.
 
 ## Verification
 
-Run the vulnerability demonstration script:
+Run unit test assertions:
 ```bash
-py -3.12 src/test_vulnerabilities.py
+py -3.12 -m unittest src/test_vulnerabilities.py
 ```
-Both PII leakage and prompt injection exploitation will be demonstrated in console output.
+All tests verify PII redaction and injection blocking cleanly.
